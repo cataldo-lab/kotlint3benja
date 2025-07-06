@@ -1,46 +1,60 @@
 package com.example.taskapp.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.TextView
+import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.taskapp.R
+import com.example.taskapp.databinding.ItemTaskBinding
 import com.example.taskapp.model.Task
 
-class TaskAdapter(private val tasks: MutableList<Task>) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
-
-    class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val taskTitle: TextView = itemView.findViewById(R.id.taskTitle)
-        val checkBox: CheckBox = itemView.findViewById(R.id.checkBox)
-    }
+class TaskAdapter(
+    private val onTaskCheckedChange: (Task) -> Unit,
+    private val onTaskLongClick: (Task) -> Unit
+) : ListAdapter<Task, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_task, parent, false)
-        return TaskViewHolder(view)
+        val binding: ItemTaskBinding = DataBindingUtil.inflate(
+            LayoutInflater.from(parent.context),
+            R.layout.item_task,
+            parent,
+            false
+        )
+        return TaskViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        val task = tasks[position]
-        holder.taskTitle.text = task.title
+        val task = getItem(position)
+        holder.bind(task)
+    }
 
-        holder.checkBox.isChecked = task.isCompleted
-        holder.checkBox.setOnCheckedChangeListener{ _, isChecked ->
-            task.isCompleted = isChecked
+    inner class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(task: Task) {
+            binding.task = task
+            binding.executePendingBindings()
+
+            binding.checkBox.setOnCheckedChangeListener { _, isChecked ->
+                task.isCompleted = isChecked
+                onTaskCheckedChange(task)
+            }
+
+            binding.root.setOnLongClickListener {
+                onTaskLongClick(task)
+                true
+            }
+        }
+    }
+
+    class TaskDiffCallback : DiffUtil.ItemCallback<Task>() {
+        override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
+            return oldItem.id == newItem.id
         }
 
-    }
-
-    override fun getItemCount(): Int {
-        return tasks.size
-    }
-
-
-    fun addTask(task: Task) {
-        tasks.add(task)
-        notifyItemInserted(tasks.size - 1)
+        override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
+            return oldItem == newItem
+        }
     }
 }

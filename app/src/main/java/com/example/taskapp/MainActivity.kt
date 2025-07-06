@@ -1,52 +1,85 @@
 package com.example.taskapp
 
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.taskapp.adapter.TaskAdapter
+import com.example.taskapp.databinding.ActivityMainBinding
 import com.example.taskapp.model.Task
-import com.example.taskapp.ui.theme.TaskAppTheme
+import com.example.taskapp.viewmodel.TaskViewModel
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
     private lateinit var taskAdapter: TaskAdapter
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var taskInput: EditText
-    private lateinit var addButton: Button
+    private val taskViewModel: TaskViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        taskInput = findViewById(R.id.taskInput)
-        addButton = findViewById(R.id.addButton)
-        recyclerView = findViewById(R.id.recyclerView)
+        // Configurar Data Binding
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding.viewModel = taskViewModel
+        binding.lifecycleOwner = this // Para observar LiveData desde el layout
 
-        val tasks = mutableListOf<Task>()
-        taskAdapter = TaskAdapter(tasks)
-        recyclerView.adapter = taskAdapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        setupRecyclerView()
+        setupObservers()
+        setupClickListeners()
+    }
 
-        addButton.setOnClickListener{
-            val taskTitle = taskInput.text.toString()
-            if(taskTitle.isNotEmpty()){
-                val newTask = Task(id = tasks.size + 1, title = taskTitle)
-                taskAdapter.addTask(newTask)
-                taskInput.text.clear()
-                taskInput.text.clear()
+    private fun setupRecyclerView() {
+        taskAdapter = TaskAdapter(
+            onTaskCheckedChange = { task ->
+                taskViewModel.updateTask(task)
+            },
+            onTaskLongClick = { task ->
+                showDeleteConfirmationDialog(task)
+            }
+        )
+
+        binding.recyclerView.apply {
+            adapter = taskAdapter
+            layoutManager = LinearLayoutManager(this@MainActivity)
+        }
+    }
+
+    private fun setupObservers() {
+        // Observar cambios en la lista de tareas
+        taskViewModel.allTasks.observe(this, Observer { tasks ->
+            tasks?.let {
+                taskAdapter.submitList(it)
+            }
+        })
+    }
+
+    private fun setupClickListeners() {
+        binding.addButton.setOnClickListener {
+            val taskTitle = binding.taskInput.text.toString().trim()
+            if (taskTitle.isNotEmpty()) {
+                val newTask = Task(title = taskTitle)
+                taskViewModel.insertTask(newTask)
+                binding.taskInput.text.clear()
+                Toast.makeText(this, "Tarea agregada", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Por favor ingresa una tarea", Toast.LENGTH_SHORT).show()
             }
         }
+    }
 
+    private fun showDeleteConfirmationDialog(task: Task) {
+        AlertDialog.Builder(this)
+            .setTitle("Eliminar tarea")
+            .setMessage("¿Estás seguro de que quieres eliminar esta tarea?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                taskViewModel.deleteTask(task)
+                Toast.makeText(this, "Tarea eliminada", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 }
