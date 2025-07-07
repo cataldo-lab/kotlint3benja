@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         taskAdapter = TaskAdapter(
             onTaskClick = { task ->
-                // Alternar estado de completado
+                // Simply toggle the completion state
                 val updatedTask = task.copy(isCompleted = !task.isCompleted)
                 viewModel.updateTask(updatedTask)
             },

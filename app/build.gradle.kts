@@ -1,7 +1,8 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.compose.compiler)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.kapt")
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
 
 }
 
@@ -43,6 +44,9 @@ android {
         dataBinding = true
         viewBinding = true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.15"
+    }
 }
 
 dependencies {
@@ -60,7 +64,7 @@ dependencies {
 
     // AppCompat para Activities
     implementation("androidx.appcompat:appcompat:1.7.1")
-
+    kapt("androidx.room:room-compiler:2.7.2")
     // Material Design Components
     implementation("com.google.android.material:material:1.12.0")
 
@@ -69,9 +73,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.1")
     implementation("androidx.lifecycle:lifecycle-common-java8:2.9.1")
 
-    // Room
+    // Room - FIXED: Use consistent versions
     implementation("androidx.room:room-runtime:2.7.2")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-ktx:2.7.2") // Changed from 2.6.1 to 2.7.2
 
 
     // Activity KTX para viewModels()
@@ -92,4 +96,3 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
-

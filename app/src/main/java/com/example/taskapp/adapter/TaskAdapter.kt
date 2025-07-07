@@ -20,10 +20,16 @@ class TaskAdapter(
             binding.task = task
             binding.executePendingBindings()
 
-            // Configurar click listeners
+            // Clear previous listener to prevent conflicts
+            binding.checkboxCompleted.setOnCheckedChangeListener(null)
+
+            // Set the current state
+            binding.checkboxCompleted.isChecked = task.isCompleted
+
+            // Set the listener after setting the state
             binding.checkboxCompleted.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked != task.isCompleted) {
-                    onTaskClick(task.copy(isCompleted = isChecked))
+                    onTaskClick(task)
                 }
             }
 
