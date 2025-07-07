@@ -6,17 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.taskapp.model.Task
 
-@Database(
-    entities = [Task::class],
-    version = 1,
-    exportSchema = false
-)
+@Database(entities = [Task::class], version = 1)
 abstract class TaskDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 
     companion object {
-        @Volatile
-        private var INSTANCE: TaskDatabase? = null
+        @Volatile private var INSTANCE: TaskDatabase? = null
 
         fun getDatabase(context: Context): TaskDatabase {
             return INSTANCE ?: synchronized(this) {

@@ -1,9 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    id("kotlin-kapt")
+    alias(libs.plugins.compose.compiler)
+
 }
+
 
 android {
     namespace = "com.example.taskapp"
@@ -11,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.taskapp"
-        minSdk = 35
+        minSdk = 28
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -38,6 +39,7 @@ android {
     buildFeatures {
         compose = true
         dataBinding = true
+        viewBinding = true
     }
 }
 
@@ -54,18 +56,29 @@ dependencies {
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.cardview)
 
+    // AppCompat para Activities
+    implementation("androidx.appcompat:appcompat:1.7.1")
+
+    // Material Design Components
+    implementation("com.google.android.material:material:1.12.0")
+
     // ViewModel y LiveData
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
-    implementation("androidx.lifecycle:lifecycle-common-java8:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.1")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.1")
+    implementation("androidx.lifecycle:lifecycle-common-java8:2.9.1")
 
     // Room
-    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-runtime:2.7.2")
     implementation("androidx.room:room-ktx:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
+
 
     // Activity KTX para viewModels()
-    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation("androidx.activity:activity-ktx:1.10.1")
+
+    // Fragment KTX
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.core.ktx)
+    implementation(libs.transportation.driver)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

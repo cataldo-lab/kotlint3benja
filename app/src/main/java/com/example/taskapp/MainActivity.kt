@@ -5,34 +5,60 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.taskapp.adapter.TaskAdapter
 import com.example.taskapp.databinding.ActivityMainBinding
-import com.example.taskapp.model.Task
+import com.example.taskapp.model.*
 import com.example.taskapp.viewmodel.TaskViewModel
+
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: TaskViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
+    private lateinit var taskAdapter: TaskAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Usa Data Binding
+
+        // Configura Data Binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = this  // LifecycleOwner
+        binding.lifecycleOwner = this  // Para que LiveData funcione con Data Binding
 
-        // Observa las tareas y actualiza el RecyclerView (puedes adaptar tu adapter)
+        // Configura RecyclerView
+        setupRecyclerView()
+
+        // Observa las tareas y actualiza el RecyclerView
         viewModel.allTasks.observe(this, Observer { tasks ->
-            // Actualiza el adapter aquí
+            taskAdapter.submitList(tasks)
         })
 
-        // Ejemplo de agregar tarea desde botón (puedes mejorar esto según tu adapter)
+        // Configurar el botón para agregar tareas
         binding.addButton.setOnClickListener {
-            val title = binding.editTask.text.toString()
+            val title = binding.editTask.text.toString().trim()
             if (title.isNotBlank()) {
                 val task = Task(title = title)
                 viewModel.insertTask(task)
                 binding.editTask.text?.clear()
             }
+        }
+    }
+
+    private fun setupRecyclerView() {
+        taskAdapter = TaskAdapter(
+            onTaskClick = { task ->
+                // Alternar estado de completado
+                val updatedTask = task.copy(isCompleted = !task.isCompleted)
+                viewModel.updateTask(updatedTask)
+            },
+            onDeleteClick = { task ->
+                viewModel.deleteTask(task)
+            }
+        )
+
+        binding.recyclerView.apply {
+            adapter = taskAdapter
+            layoutManager = LinearLayoutManager(this@MainActivity)
         }
     }
 }

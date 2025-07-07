@@ -1,12 +1,11 @@
-package com.example.taskapp.model
-
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "tasks")
 data class Task(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,
-    var isCompleted: Boolean = false
+    val description: String,
+    val isCompleted: Boolean = false
 )
+
