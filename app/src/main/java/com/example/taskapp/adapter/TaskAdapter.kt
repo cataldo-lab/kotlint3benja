@@ -1,26 +1,23 @@
 package com.example.taskapp.adapter
 
-import Task
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.taskapp.databinding.ItemTaskBinding
-import com.example.taskapp.model.*
+import com.example.taskapp.model.Task
 
 class TaskAdapter(
     private val onTaskClick: (Task) -> Unit,
-    private val onDeleteClick: (Task) -> Unit,
-    private val onEditClick: (Task) -> Unit // Nuevo callback para editar
+    private val onDeleteClick: (Task) -> Unit
 ) : ListAdapter<Task, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
 
     inner class TaskViewHolder(private val binding: ItemTaskBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(task: Task) {
-            binding.textViewTaskTitle.text = task.title
-            binding.checkboxCompleted.isChecked = task.isCompleted
+            binding.task = task
             binding.executePendingBindings()
 
             // Configurar click listeners
@@ -32,10 +29,6 @@ class TaskAdapter(
 
             binding.buttonDelete.setOnClickListener {
                 onDeleteClick(task)
-            }
-
-            binding.root.setOnClickListener { // Permitir editar al hacer clic en el elemento
-                onEditClick(task)
             }
         }
     }
@@ -51,11 +44,6 @@ class TaskAdapter(
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         holder.bind(getItem(position))
-    }
-
-    // Método para compatibilidad con el código existente
-    fun submitList(newTasks: List<Task>) {
-        submitList(newTasks as List<Task>?)
     }
 }
 

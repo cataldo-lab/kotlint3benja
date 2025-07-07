@@ -8,9 +8,8 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskapp.adapter.TaskAdapter
 import com.example.taskapp.databinding.ActivityMainBinding
-import com.example.taskapp.model.*
+import com.example.taskapp.model.Task
 import com.example.taskapp.viewmodel.TaskViewModel
-
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: TaskViewModel by viewModels()
@@ -23,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         // Configura Data Binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = this  // Para que LiveData funcione con Data Binding
+        binding.lifecycleOwner = this
 
         // Configura RecyclerView
         setupRecyclerView()

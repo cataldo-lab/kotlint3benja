@@ -1,6 +1,5 @@
 package com.example.taskapp.utils
 
-import Task
 import android.graphics.Paint
 import android.widget.CheckBox
 import android.widget.TextView
